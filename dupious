@@ -4,7 +4,7 @@
 # Note to vim newbies: this file uses vim folds. Type 'zR' in command mode to open all folds, or use
 # :help folds or :help zo for more info.
 #
-# finddup.pl version 0.2.0 - DOCUMENTATION {{{
+# dupious version 0.2.0 - DOCUMENTATION {{{
 #
 # Written by Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 # Licensed under GPLv2 - http://www.gnu.org/licenses/gpl-2.0.html
@@ -18,11 +18,11 @@
 # 
 # First create the database with the hashes:
 #
-# ./finddup.pl --init [ --datapath /path/to/somewhere ]
+# ./dupious --init [ --datapath /path/to/somewhere ]
 #
 # After that, check for duplicates:
 #
-# ./finddup.pl --show-duplicates [ --datapath /path/to/somewhere ]
+# ./dupious --show-duplicates [ --datapath /path/to/somewhere ]
 #
 # If path isn't given, default to current directory (.)
 #
