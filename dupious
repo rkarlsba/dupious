@@ -463,8 +463,7 @@ sub recursively_read_dir {
 		die "Invalid mode '$mode'\n"
 	}
 
-# Be nice!
-	my $iop_status = ioprio_set(IOPRIO_WHO_PROCESS, $$, IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0));
+# Be nice! - need some ionice here...
 	setpriority(0, 0, 20);
 
 # Check for excludes
