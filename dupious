@@ -160,36 +160,7 @@ my %goodstuff = (
 $|++;
 
 # }}}
-# sub profile_point([name]) - add time to a given profiling point sub profile_point(name) {{{
 
-sub profile_point {
-	my $name = shift;
-	my $current_time = time;
-	my $diff = $current_time-$profile_time;
-	$profile_time = $current_time;
-
-	return if($diff == $current_time);
-	return unless defined($name);
-
-	if(!defined($profile_points{$name})){
-		$profile_points{$name} = 0;
-	}
-	$profile_points{$name} = $profile_points{$name}+$diff;
-}
-
-# }}}
-# sub profiling_print {{{
-
-sub profiling_print {
-	my $key;
-	my $value;
-	print "Profiling output:\n";
-	while(($key, $value) = each(%profile_points)){
-		print "$key used $value seconds\n";
-	}
-}
-
-# }}}
 # sub calc_numeric() - Calculate numeric with [kMGT] {{{
 
 sub calc_numeric {
@@ -447,6 +418,36 @@ sub handle_duplicates {
 		$sql =~ s/\s+/ /gmi;
 		print "SQL = $sql\n";
 	}
+
+# }}}
+# sub profile_point([name]) - add time to a given profiling point sub profile_point(name) {{{
+
+sub profile_point {
+	my $name = shift;
+	my $current_time = time;
+	my $diff = $current_time-$profile_time;
+	$profile_time = $current_time;
+
+	return if($diff == $current_time);
+	return unless defined($name);
+
+	if(!defined($profile_points{$name})){
+		$profile_points{$name} = 0;
+	}
+	$profile_points{$name} = $profile_points{$name}+$diff;
+}
+
+# }}}
+# sub profiling_print {{{
+
+sub profiling_print {
+	my $key;
+	my $value;
+	print "Profiling output:\n";
+	while(($key, $value) = each(%profile_points)){
+		print "$key used $value seconds\n";
+	}
+}
 
 # }}}
 # sub recursively_read_dir() {{{
