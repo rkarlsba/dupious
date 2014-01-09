@@ -247,6 +247,15 @@ sub cleanup {
 	}
 
 # }}}
+# sub db_extend() - Extend database if neeed {{{
+
+	sub db_extend {
+		$sql = "DROP TABLE IF EXISTS hashes";
+		#$sth = $dbh->prepare($sql);
+		#$sth->execute() or die 'wtf?';
+	}
+
+# }}}
 # sub handle_duplicates() - Handle duplicated files {{{
 
 sub handle_duplicates {
