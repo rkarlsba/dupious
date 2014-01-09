@@ -124,7 +124,6 @@ my %profile_points = (
 );
 
 # Settings
-my $sqlitedb_old = 'finddup.db';
 my $sqlitedb = $ENV{"HOME"} . '/.finddup.db';
 my $min_fsize_for_thread = 1024**2;
 my $data_path = getcwd();
@@ -302,7 +301,7 @@ sub handle_duplicates {
 	$sql .= " AND size > $min_size" if (defined($min_size));
 	$sql .= " AND filename like '$path%'" if (defined($path));
 
-	print "DEBUG: SQL[1] = $sql\n" if ($debug);
+	print text_cleanup("DEBUG: SQL[1] = $sql\n") if ($debug);
 	$sth = $dbh->prepare($sql);
 	$sth->execute or die "Can't execute query: $sql\n";
 	while (my ($md5,$sha256) = $sth->fetchrow) {
@@ -319,7 +318,7 @@ sub handle_duplicates {
 				AND sha256 = '" . $h->{'sha256'} . "'
 				GROUP BY inode
 				ORDER BY filename";
-		print "DEBUG: SQL[2] = $sql\n" if ($debug);
+		print text_cleanup("DEBUG: SQL[2] = $sql\n") if ($debug);
 		$sth = $dbh->prepare($sql);
 		$sth->execute or die "Can't execute query: $sql\n";
 
@@ -607,10 +606,11 @@ Mode parameters:
     --hardlink-duplicates -H  Hardlink duplicates. Requires --force to
 	                          overwrite existing files.
 
-	Only one mode parameter can be given!
+    Only one mode parameter can be given!
 
 Optional parameters:
     --datapath -p             Use datapath given, not current directory
+    --database                Use custom database, not $sqlitedb
     --verbose -v              Be verbose - list all files and actions (debug)
     --unstable                Enable untested features
     --quiet -Q                Just show summeries
@@ -620,7 +620,7 @@ Optional parameters:
     --exclude regex           Ignore dirs matching regex - additional
                               --exclude statements can be given
     --no-cleanup              Used with --update - exclude --cleanup with an --update.
-	--debug                   Print debug information
+    --debug                   Print debug information
     --version -V              Display version and exit
 EOTEXT
 	exit 1;
@@ -633,6 +633,15 @@ EOTEXT
 		my $fsize = shift;
 		return 0 unless ($os_supporting_threads{$^O});
 		return ($fsize > $min_fsize_for_thread);
+	}
+
+# }}}
+# sub text_cleanup() {{{
+
+	sub text_cleanup {
+		my $s = shift;
+		$s =~ s/[\s\n\r]+/ /gsm;
+		return "$s\n";
 	}
 
 # }}}
@@ -663,6 +672,7 @@ my $result = GetOptions (
 	"version"				=> \$version,				"V" => \$version,
 	"quiet"					=> \$quiet,					"Q" => \$quiet,
 	"debug"					=> \$debug,					"D" => \$debug,
+	"database=s"			=> \$sqlitedb,
 	"csv"					=> \$csv,
 	"follow-symlinks"		=> \$follow_symlinks,
 	"update-inodes"			=> \$update_inodes,
@@ -694,14 +704,12 @@ if ($okcount == 0) {
 	&syntax("Conflicting arguments [$okcount]");
 }
 
-&syntax("unknown data path") unless (-d $data_path);
+# Ignore this for now
+# &syntax("unknown data path") unless (-d $data_path and ! $debug);
 
 
 # }}}
 # Main program {{{
-
-# Use './finddup.db' if it exists. Otherwise, use ~/.finddup.db
-$sqlitedb = $sqlitedb_old if ( -f $sqlitedb_old );
 
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
@@ -711,8 +719,9 @@ if ($init and -f $sqlitedb and !$force) {
 	exit(1);
 }
 
-print "DEBUG: chdir($data_path)\n" if ($debug);
-die "Can't chdir($data_path): $!\n" unless (chdir($data_path));
+# why do we do this?
+# print "DEBUG: chdir($data_path)\n" if ($debug);
+# die "Can't chdir($data_path): $!\n" unless (chdir($data_path));
 
 print "DEBUG: \$dbh = DBI->connect(\"dbi:SQLite:dbname=$sqlitedb\",\"\",\"\");\n" if ($debug);
 $dbh = DBI->connect("dbi:SQLite:dbname=$sqlitedb","","");
@@ -739,7 +748,8 @@ if ($init) {
 	&syntax("WTF????");
 }
 
-if($verbose){
+# Not so sure about this...
+if ($verbose){
 	&profiling_print;
 }
 
