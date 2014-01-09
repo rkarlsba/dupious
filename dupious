@@ -95,6 +95,7 @@ use Cwd;
 # for profiling
 use Time::HiRes qw/ time sleep /;
 use File::Spec;
+use File::MimeInfo::Magic;
 use threads ('yield',
 			 'stack_size' => 64*4096,
 			 'exit' => 'threads_only',
@@ -250,9 +251,10 @@ sub cleanup {
 # sub db_extend() - Extend database if neeed {{{
 
 	sub db_extend {
-		$sql = "DROP TABLE IF EXISTS hashes";
-		#$sth = $dbh->prepare($sql);
-		#$sth->execute() or die 'wtf?';
+		$sql = "DESCRIBE hashes LIMIT 1";
+		$sth = $dbh->prepare($sql);
+		$sth->execute() or die 'db_extend(): Can\'t query database';
+		my @row = $sth->fetchrow_array;
 	}
 
 # }}}

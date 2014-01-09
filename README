@@ -1,4 +1,10 @@
 dupious
-=======
+===========
 
 Find duplicate files across filesystems and servers (soon)
+
+So far, most of the documentation is in the dupious script itself, on top, as
+comments.
+
+roy <roy@karlsbakk.net>
+
