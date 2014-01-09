@@ -119,6 +119,7 @@ my $hardlink_duplicates = 0;
 my $csv = 0;
 my $quiet = 0;
 my $version = 0;
+my $waste = 0;
 my $profile_time = 0;
 my %profile_points = (
 );
@@ -280,7 +281,6 @@ sub cleanup {
 sub handle_duplicates {
 	my @hashes;
 	my $count=0;
-	my $waste=0;
 	my $mode = shift;
 	my $path = shift;
 
@@ -324,13 +324,15 @@ sub handle_duplicates {
 		$sth->execute or die "Can't execute query: $sql\n";
 
 		if ($mode eq "show") {
+			my $filewaste = 0;
 			my ($filename,$size,$inode) = $sth->fetchrow;
-			my $s = "$filename matches: \n" unless ($quiet);
+			my $s = "$filename [" . human_readable($size) . "/%s] matches: \n" unless ($quiet);
 			while (my ($filename2,$size2) = $sth->fetchrow) {
 				$s .= " \\- " . $filename2 . "\n" unless ($quiet);
-				$waste += $size2;
-				print "WASTE $size2 (" . human_readable($size2) . "B)\n" if ($verbose);
+				$filewaste += $size2;
 			}
+			$s = sprintf($s, human_readable($filewaste));
+			$waste += $filewaste;
 			print "$s\n" unless ($quiet);
 		} elsif ($mode eq "csv") {
 			my ($filename,$size,$inode) = $sth->fetchrow;
@@ -368,6 +370,15 @@ sub handle_duplicates {
 	my $hwaste = human_readable($waste);
 	print "Total space wasted: " . $hwaste . "B ($waste bytes)\n" if ($mode eq "show" or ($mode eq "csv" and $verbose));
 }
+
+# }}}
+# sub handle_signal() {{{
+	sub handle_signal {
+		my $signame = shift;
+		print "Caught signal $signame\n";
+		print "Total waste found so far: " . human_readable($waste) . "\n";
+		exit(1);
+	}
 
 # }}}
 # sub hash_file() - Create hash of a file {{{
@@ -711,6 +722,10 @@ if ($okcount == 0) {
 
 # }}}
 # Main program {{{
+
+# Setup signal handlers
+$SIG{INT} = sub { &handle_signal };
+$SIG{HUP} = sub { &handle_signal };
 
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
