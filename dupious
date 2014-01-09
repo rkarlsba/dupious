@@ -292,7 +292,7 @@ sub handle_duplicates {
 	die "Smells like fish - fix the code!"
 		unless ($mode eq "show" or $mode eq "hardlink" or $mode eq "csv");
 
-	$sql = "SELECT md5,sha256
+	$sql = "SELECT filename,md5,sha256
 			FROM hashes
 			GROUP BY md5,sha256
 			HAVING COUNT(sha256) > 1
@@ -300,11 +300,12 @@ sub handle_duplicates {
 	$sql .= " AND size < $max_size" if (defined($max_size));
 	$sql .= " AND size > $min_size" if (defined($min_size));
 	$sql .= " AND filename like '$path%'" if (defined($path));
+	$sql .= " ORDER BY filename";
 
 	print text_cleanup("DEBUG: SQL[1] = $sql\n") if ($debug);
 	$sth = $dbh->prepare($sql);
 	$sth->execute or die "Can't execute query: $sql\n";
-	while (my ($md5,$sha256) = $sth->fetchrow) {
+	while (my ($filename,$md5,$sha256) = $sth->fetchrow) {
 		$hashes[$count]{'md5'} = $md5;
 		$hashes[$count]{'sha256'} = $sha256;
 		$count++;
