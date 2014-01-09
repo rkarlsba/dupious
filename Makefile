@@ -1,6 +1,6 @@
 # vim:ts=4:sw=4:isfname-==
 
-TARGET=finddup.pl
+TARGET=dupious
 DESTDIR=/usr/local/bin
 
 all:
