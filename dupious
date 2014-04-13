@@ -145,6 +145,7 @@ my @use_hashes = ('md5','sha256');
 my ($md5_thread,$sha256_thread);
 my %os_supporting_threads = (
 	linux => 1,
+	freebsd => 1,
 );
 # Which hashes do we support?
 my %goodstuff = (
