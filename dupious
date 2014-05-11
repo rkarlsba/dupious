@@ -73,6 +73,23 @@
 #   - Fixed --path support for handle_duplicates so that filtering on path with --show-duplicates
 #     works.
 #
+# DATABASE INITIALISATION (BETA!)
+# 
+# Due to its nature, sqlite database is initiated automatically with -I. For PostgreSQL and MySQL,
+# database and table (one for now) must be created manually along with granting rights to the user.
+#
+# PostgreSQL:
+#   CREATE TABLE hashes(
+#     filename varchar(500) NOT NULL UNIQUE,
+#     inode integer,
+#     size integer,
+#     mtime integer,
+#     dev integer,
+#     md5 varchar(32),
+#     sha256 varchar(64)
+#   );
+#
+#
 # TODO
 #
 # - Rewrite to relative paths, being compatible with crossmounting
@@ -638,6 +655,7 @@ Mode parameters:
 Optional parameters:
     --datapath -p             Use datapath given, not current directory
     --database                Use custom database, not $sqlitedb
+    --config-file             Use specified config file, not $default_config_file
     --verbose -v              Be verbose - list all files and actions (debug)
     --unstable                Enable untested features
     --quiet -Q                Just show summeries
@@ -699,6 +717,7 @@ my $result = GetOptions (
 	"version"				=> \$version,				"V" => \$version,
 	"quiet"					=> \$quiet,					"Q" => \$quiet,
 	"debug"					=> \$debug,					"D" => \$debug,
+	"config-file=s"			=> \$config_file,			"f=s" => \$config_file,
 	"database=s"			=> \$sqlitedb,
 	"csv"					=> \$csv,
 	"follow-symlinks"		=> \$follow_symlinks,
@@ -707,7 +726,6 @@ my $result = GetOptions (
 	"min-size=s"			=> \$min_size,
 	"max-size=s"			=> \$max_size,
 	"exclude=s"				=> \@exclude,
-	"config-file=s"			=> \$config_file,
 	"verify"				=> \$verify,
 	"force"					=> \$force,
 	"no-cleanup"			=> \$no_cleanup,
@@ -726,21 +744,32 @@ $okcount++ if ($show_duplicates);
 $okcount++ if ($hardlink_duplicates);
 $okcount++ if ($cleanup);
 $okcount++ if ($csv);
+if (defined($config_file)) {
+	&syntax("Config file '$config_file' not readable: $!\n") unless (-r $config_file);
+} else {
+	$config_file = $default_config_file;
+}
 if ($okcount == 0) {
 	&syntax("Missing required argument");
 } elsif ($okcount > 1) {
 	&syntax("Conflicting arguments [$okcount]");
-}
-if (defined($config_file)) {
-	&syntax("Config file '$config_file' not readable: $!\n" unless (-r $config_file);
-} else {
-	$config_file = $default_config_file;
 }
 
 # Ignore this for now
 # &syntax("unknown data path") unless (-d $data_path and ! $debug);
 
 
+# }}}
+# Parse config file {{{
+if (-r $config_file) {
+	unless (open CF,$config_file) {
+		print STDERR "Can't open config file: $!\n";
+		exit(1);
+	}
+	while (<CF>) {
+	}
+	close CF;
+}
 # }}}
 # Main program {{{
 
