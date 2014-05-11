@@ -127,6 +127,8 @@ my %profile_points = (
 
 # Settings
 my $sqlitedb = $ENV{"HOME"} . '/.finddup.db';
+my $default_config_file = $ENV{"HOME"} . '/.dupious.conf';
+my $config_file = undef;
 my $min_fsize_for_thread = 1024**2;
 my $data_path = getcwd();
 my $help = 0;
@@ -705,6 +707,7 @@ my $result = GetOptions (
 	"min-size=s"			=> \$min_size,
 	"max-size=s"			=> \$max_size,
 	"exclude=s"				=> \@exclude,
+	"config-file=s"			=> \$config_file,
 	"verify"				=> \$verify,
 	"force"					=> \$force,
 	"no-cleanup"			=> \$no_cleanup,
@@ -727,6 +730,11 @@ if ($okcount == 0) {
 	&syntax("Missing required argument");
 } elsif ($okcount > 1) {
 	&syntax("Conflicting arguments [$okcount]");
+}
+if (defined($config_file)) {
+	&syntax("Config file '$config_file' not readable: $!\n" unless (-r $config_file);
+} else {
+	$config_file = $default_config_file;
 }
 
 # Ignore this for now
