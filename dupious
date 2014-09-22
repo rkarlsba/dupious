@@ -112,7 +112,7 @@ use Cwd;
 # for profiling
 use Time::HiRes qw/ time sleep /;
 use File::Spec;
-use File::MimeInfo::Magic;
+#use File::MimeInfo::Magic;
 use threads ('yield',
 			 'stack_size' => 64*4096,
 			 'exit' => 'threads_only',
