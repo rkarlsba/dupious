@@ -112,6 +112,7 @@ use Cwd;
 # for profiling
 use Time::HiRes qw/ time sleep /;
 use File::Spec;
+use POSIX qw /nice/;
 #use File::MimeInfo::Magic;
 use threads ('yield',
 			 'stack_size' => 64*4096,
@@ -776,6 +777,9 @@ if (-r $config_file) {
 # Setup signal handlers
 $SIG{INT} = sub { &handle_signal };
 $SIG{HUP} = sub { &handle_signal };
+
+# Lower process priority
+nice(19);
 
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
