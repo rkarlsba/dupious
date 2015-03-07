@@ -1,12 +1,11 @@
 # vim:ts=4:sw=4:isfname-==
 
-TARGET=dupious
+SOURCE=dupious
 DESTDIR=/usr/local/bin
 
 all:
-	@echo use 'make install' to install $(TARGET) to $(DESTDIR)
+	@echo use 'make install' to install $(SOURCE) to $(DESTDIR)
 
 install:
-	cp $(TARGET) $(DESTDIR)
-	chmod 755 $(DESTDIR)
+	install $(SOURCE) $(DESTDIR)
 
