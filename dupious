@@ -809,6 +809,7 @@ if ($init) {
 } elsif ($csv) {
 	&handle_duplicates("csv", $data_path);
 } elsif ($hardlink_duplicates) {
+	die "Don't use this. Just don't. It's not ready. Comment out this line if you feel brave.\n";
 	&handle_duplicates("hardlink");
 } elsif ($cleanup) {
 	print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
