@@ -4,7 +4,7 @@
 # Note to vim newbies: this file uses vim folds. Type 'zR' in command mode to open all folds, or use
 # :help folds or :help zo for more info.
 #
-# dupious version 0.2.0 - DOCUMENTATION {{{
+# dupious version 0.2.1 - DOCUMENTATION {{{
 #
 # Written by Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 # Licensed under GPLv2 - http://www.gnu.org/licenses/gpl-2.0.html
@@ -69,9 +69,12 @@
 #   - Moved cleanup to updated - added notice for explicit cleanup, and removed cleanup from the
 #     help page. Thanks to Håkon Struijk Holmen <haakonsh@gmail.com for feedback.
 #
-# 0.2.0>
+# 0.2.0:
 #   - Fixed --path support for handle_duplicates so that filtering on path with --show-duplicates
 #     works.
+#
+# 0.2.1
+#   - Added --check to just check hashes
 #
 # DATABASE INITIALISATION (BETA!)
 # 
@@ -708,6 +711,7 @@ my $result = GetOptions (
 	"init"					=> \$init,					"I"	=> \$init,
 	"update"				=> \$update,				"U"	=> \$update,
 	"cleanup"				=> \$cleanup,				"C"	=> \$cleanup,
+	"check"					=> \$check,
 	"show-duplicates"		=> \$show_duplicates,		"S"	=> \$show_duplicates,
 	"hardlink-duplicates"	=> \$hardlink_duplicates,	"H"	=> \$hardlink_duplicates,
 
@@ -815,6 +819,8 @@ if ($init) {
 	print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
 		if ($verbose);
 	&cleanup;
+} elsif ($check) {
+	&handle_duplicates("check", $data_path);
 } else {
 	&syntax("WTF????");
 }
