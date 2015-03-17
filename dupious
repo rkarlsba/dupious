@@ -4,7 +4,7 @@
 # Note to vim newbies: this file uses vim folds. Type 'zR' in command mode to open all folds, or use
 # :help folds or :help zo for more info.
 #
-# dupious version 0.3.0 - DOCUMENTATION {{{
+# dupious version 0.2.0 - DOCUMENTATION {{{
 #
 # Written by Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 # Licensed under GPLv2 - http://www.gnu.org/licenses/gpl-2.0.html
@@ -72,10 +72,6 @@
 # 0.2.0:
 #   - Fixed --path support for handle_duplicates so that filtering on path with --show-duplicates
 #     works.
-#
-# 0.3.0:
-#   - New branch - now, new stuff is to traverse and then then only checksum files with identical
-#   size.
 #
 # DATABASE INITIALISATION (BETA!)
 # 
