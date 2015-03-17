@@ -69,12 +69,9 @@
 #   - Moved cleanup to updated - added notice for explicit cleanup, and removed cleanup from the
 #     help page. Thanks to Håkon Struijk Holmen <haakonsh@gmail.com for feedback.
 #
-# 0.2.0:
+# 0.2.0>
 #   - Fixed --path support for handle_duplicates so that filtering on path with --show-duplicates
 #     works.
-#
-# 0.2.1
-#   - Added --check to just check hashes
 #
 # DATABASE INITIALISATION (BETA!)
 # 
@@ -115,7 +112,6 @@ use Cwd;
 # for profiling
 use Time::HiRes qw/ time sleep /;
 use File::Spec;
-use POSIX qw /nice/;
 #use File::MimeInfo::Magic;
 use threads ('yield',
 			 'stack_size' => 64*4096,
@@ -711,7 +707,6 @@ my $result = GetOptions (
 	"init"					=> \$init,					"I"	=> \$init,
 	"update"				=> \$update,				"U"	=> \$update,
 	"cleanup"				=> \$cleanup,				"C"	=> \$cleanup,
-	"check"					=> \$check,
 	"show-duplicates"		=> \$show_duplicates,		"S"	=> \$show_duplicates,
 	"hardlink-duplicates"	=> \$hardlink_duplicates,	"H"	=> \$hardlink_duplicates,
 
@@ -782,9 +777,6 @@ if (-r $config_file) {
 $SIG{INT} = sub { &handle_signal };
 $SIG{HUP} = sub { &handle_signal };
 
-# Lower process priority
-nice(19);
-
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
 	print "Use --force to foribly overwrite and possibly corrupt an existing\n";
@@ -813,14 +805,11 @@ if ($init) {
 } elsif ($csv) {
 	&handle_duplicates("csv", $data_path);
 } elsif ($hardlink_duplicates) {
-	die "Don't use this. Just don't. It's not ready. Comment out this line if you feel brave.\n";
 	&handle_duplicates("hardlink");
 } elsif ($cleanup) {
 	print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
 		if ($verbose);
 	&cleanup;
-} elsif ($check) {
-	&handle_duplicates("check", $data_path);
 } else {
 	&syntax("WTF????");
 }
