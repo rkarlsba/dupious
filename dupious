@@ -157,6 +157,7 @@ my $xdev = 0;
 my $verify = 0;
 my $force = 0;
 my $debug = 0;
+my $no_hash = 0;
 my $no_cleanup = 0;
 my @exclude = ();
 my @use_hashes = ('md5','sha256');
@@ -551,16 +552,20 @@ sub recursively_read_dir {
 					# Don't create a new thread if the file is small. Perl threading is slow, so
 					# better not use it for tiny stuff...
 					profile_point("rest") if($verbose);
-					if (use_threads($fsize)) {
-						$md5_thread = threads->create(\&hash_file, $fname, "md5");
-						$sha256_thread = threads->create(\&hash_file, $fname, "sha256");
-						($md5) = $md5_thread->join();
-						($sha256) = $sha256_thread->join();
+					if ($no_hash) {
+						$md5 = $sha256 = "";
 					} else {
-						$md5 = hash_file($fname, "md5");
-						$sha256 = hash_file($fname, "sha256");
+						if (use_threads($fsize)) {
+							$md5_thread = threads->create(\&hash_file, $fname, "md5");
+							$sha256_thread = threads->create(\&hash_file, $fname, "sha256");
+							($md5) = $md5_thread->join();
+							($sha256) = $sha256_thread->join();
+						} else {
+							$md5 = hash_file($fname, "md5");
+							$sha256 = hash_file($fname, "sha256");
+						}
+						profile_point("hash") if($verbose);
 					}
-					profile_point("hash") if($verbose);
 					my $sqlfname = "$fname";
 					$sqlfname =~ s/\'/\'\'/g;
 					$sql = "INSERT INTO hashes(filename, inode, size, mtime, dev, md5, sha256)
@@ -729,10 +734,12 @@ my $result = GetOptions (
 	"force"					=> \$force,
 	"no-cleanup"			=> \$no_cleanup,
 	"unstable"				=> \$unstable,
+	"no-hash"				=> \$no_hash,
 );
 &version if ($version);
 &syntax("HELP!") if ($help);
-&syntax("Unstable feature chosen without --unstable") if ($hardlink_duplicates and not $unstable);
+&syntax("Unstable feature \"hardlink-duplicates\"chosen without --unstable") if ($hardlink_duplicates and not $unstable);
+&syntax("Unstable feature \"no-hash\"chosen without --unstable") if ($no_hash and not $unstable);
 $min_size = calc_numeric($min_size); 
 $max_size = calc_numeric($max_size); 
 $data_path = File::Spec->rel2abs($data_path) if (defined($data_path));
