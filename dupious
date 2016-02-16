@@ -495,6 +495,8 @@ sub recursively_read_dir {
 	my $rescan_inodes = shift;
 	die "Need mode!\n" unless (defined($mode));
 
+	print "$path\n" if ($verbose > 1);
+
 # Sanity check and init_db if needed
 	if ($mode eq "init") {
 		unless ($initiated_database) {
@@ -583,7 +585,7 @@ sub recursively_read_dir {
 					my $stored_mtime = undef;
 					if (($stored_mtime) = $sth->fetchrow) {
 						if ($stored_mtime == $mtime) {
-							print "SKIP    $fname\n"  if ($verbose > 1); 
+							print "SKIP    $fname\n"  if ($verbose > 2); 
 							next;
 						}
 					}
