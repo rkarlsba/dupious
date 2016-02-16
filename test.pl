@@ -3,14 +3,14 @@
 
 use strict;
 use warnings;
+use Getopt::Long;
 
-my $have_iopri = eval
-{
-	use Linux::IO_Prio qw(:all);
-	my $status = ioprio_set(IOPRIO_WHO_PROCESS, $$,
-		IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0));
-	my $status = ionice(IOPRIO_WHO_PROCESS, $$, IOPRIO_CLASS_IDLE, 0);
-	print "whee\n";
-	1;
-}
-print "We have Linux_IO_Prio\n" if ($have_iopri);
+my $verbose = undef;
+
+Getopt::Long::Configure ("bundling");
+my $result = GetOptions (
+	"v+" => \$verbose,
+);
+
+print "verbose is $verbose\n";
+exit;
