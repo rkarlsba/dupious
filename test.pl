@@ -3,9 +3,6 @@
 
 use strict;
 use warnings;
-use Module::Load::Conditional;
-
-if (can_load(modules => 
 
 my $have_iopri = eval
 {
