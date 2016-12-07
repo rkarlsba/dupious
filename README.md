@@ -88,14 +88,14 @@ database and table (one for now) must be created manually along with granting ri
 
 PostgreSQL:
 `
-CREATE TABLE hashes(
-	filename varchar(500) NOT NULL UNIQUE,
-	inode integer,
-	size integer,
-	mtime integer,
-	dev integer,
-	md5 varchar(32),
-	sha256 varchar(64)
+CREATE TABLE hashes(  
+	filename varchar(500) NOT NULL UNIQUE,  
+	inode integer,  
+	size integer,  
+	mtime integer,  
+	dev integer,  
+	md5 varchar(32),  
+	sha256 varchar(64)  
 );
 `
 
