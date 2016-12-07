@@ -87,6 +87,7 @@ Due to its nature, sqlite database is initiated automatically with -I. For Postg
 database and table (one for now) must be created manually along with granting rights to the user.
 
 PostgreSQL:
+`
 CREATE TABLE hashes(
 	filename varchar(500) NOT NULL UNIQUE,
 	inode integer,
@@ -96,6 +97,7 @@ CREATE TABLE hashes(
 	md5 varchar(32),
 	sha256 varchar(64)
 );
+`
 
 TODO
 
