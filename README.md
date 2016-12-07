@@ -12,8 +12,9 @@ happy if it does, even then.
 --
 
 Run modes:
- * Init
- * Show duplicates
+	* Init  
+In init mode, traverse through a directory, default "." and build an SQLite database of SHA256 and MD5 hashes for all files. Later, in check mode, scan through the SQLite database and report duplicate files. Since both hashes are checked, the chance of hash collisions should be minimal (e.g. zero).
+	* Show duplicates
 
 
 --
