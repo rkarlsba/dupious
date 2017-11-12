@@ -723,7 +723,7 @@ if ($init) {
 } elsif ($csv) {
 	&handle_duplicates("csv", $data_path);
 } elsif ($hardlink_duplicates) {
-	&handle_duplicates("hardlink");
+	&handle_duplicates("hardlink", $data_path);
 } elsif ($cleanup) {
 	print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
 		if ($verbose);
