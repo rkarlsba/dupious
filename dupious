@@ -53,7 +53,8 @@ my %profile_points = (
 
 # Settings
 my $sqlitedb = $ENV{"HOME"} . '/.finddup.db';
-my $default_config_file = $ENV{"HOME"} . '/.dupious.conf';
+my $default_config_file = '/etc/dupious/dupious.conf';
+my $home_config_file = $ENV{"HOME"} . '/.dupious.conf';
 my $config_file = undef;
 my $min_fsize_for_thread = 1024**2;
 my $data_path = getcwd();
@@ -571,7 +572,8 @@ Mode parameters:
 Optional parameters:
     --datapath -p             Use datapath given, not current directory
     --database                Use custom database, not $sqlitedb
-    --config-file             Use specified config file, not $default_config_file
+    --config-file             Use specified config file, instead of $default_config_file
+                              or $home_config_file (the latter takes precense if it exists).
     --verbose -v              Be verbose - list all files and actions (debug)
     --unstable                Enable untested features
     --quiet -Q                Just show summeries
@@ -580,7 +582,7 @@ Optional parameters:
     --min-size size[kmgt]     Ignore files smaller than size
     --exclude regex           Ignore dirs matching regex - additional
                               --exclude statements can be given
-    --no-cleanup              Used with --update - exclude --cleanup with an --update.
+    --no-cleanup              With --update, don't automatically enable --cleanup
     --debug                   Print debug information
     --version -V              Display version and exit
 EOTEXT
@@ -664,7 +666,9 @@ $okcount++ if ($cleanup);
 $okcount++ if ($csv);
 if (defined($config_file)) {
 	&syntax("Config file '$config_file' not readable: $!\n") unless (-r $config_file);
-} else {
+} elsif (-r $home_config_file) {
+	$config_file = $home_config_file;
+} elsif (-r $default_config_file) {
 	$config_file = $default_config_file;
 }
 if ($okcount == 0) {
