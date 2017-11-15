@@ -699,6 +699,18 @@ if (-r $config_file) {
 $SIG{INT} = sub { &handle_signal };
 $SIG{HUP} = sub { &handle_signal };
 
+# Parse config file if one is present
+if (defined($config_file)) {
+    print "Parsing config file $config_file\n" if ($debug);
+    open my $cf,$config_file || die "Can't open config file: $!";
+    while (my $line = <$cf>) {
+        next if ($line =~ /^\s+$/ or $line =~ /^#/);
+        print $line if ($debug);
+    }
+    close $cf;
+    print "Config file $config_file given, but not yet implemented.\n";
+}
+
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
 	print "Use --force to foribly overwrite and possibly corrupt an existing\n";
