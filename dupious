@@ -532,6 +532,9 @@ sub recursively_read_dir {
 		next if ($dname eq '.' or $dname eq '..');
 		my $fname = "$path/$dname";
 
+		# Fix things like /////path or /////some//////path
+		$fname =~ s/\/\//\//g;
+
 		if (!$follow_symlinks and -l "$fname") {
 			print "SYMLINK $fname\n" if ($verbose);
 		} elsif ( -d "$fname") {

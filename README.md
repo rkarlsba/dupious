@@ -6,7 +6,11 @@ comments.
 
 ## packages needed
 
+### RHEL/CentOS etc
 yum install libdbi-dbd-sqlite perl-DBD-SQLite
+
+### Debian/Ubuntu etc
+apt install libdbi-perl libdbd-sqlite3-perl
 
 ## License
 
