@@ -673,6 +673,7 @@ Optional parameters:
     --min-size size[kmgt]     Ignore files smaller than size
     --exclude regex           Ignore dirs matching regex - additional
                               --exclude statements can be given
+    --no-hash                 Don't hash files, just update the db with names etc
     --no-cleanup              Used with --update - exclude --cleanup with an --update.
     --debug                   Print debug information
     --version -V              Display version and exit
