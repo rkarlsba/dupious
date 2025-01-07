@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# vim:ts=4:sw=4:si:fdm=marker:tw=100:ruler
+# vim:ts=4:sw=4:et:si:fdm=marker:tw=100:ruler
 #
 # Note to vim newbies: this file uses vim folds. Type 'zR' in command mode to open all folds, or use
 # :help folds or :help zo for more info.
@@ -50,7 +50,7 @@
 # 0.1.0:
 #   - Fix: Don't report hardlinks as matches
 #   - Fix: Don't checksum empty files
-# 	- Feature: Add threading for supported OSes and files over a given limit (1MB standard).
+#   - Feature: Add threading for supported OSes and files over a given limit (1MB standard).
 #   - Feature: Add updating the index with --update, only updating the hashes for files that have a changed
 #     mtime since last scan. This also adds new files.
 #
@@ -113,9 +113,9 @@ use Time::HiRes qw/ time sleep /;
 use File::Spec;
 #use File::MimeInfo::Magic;
 use threads ('yield',
-			 'stack_size' => 64*4096,
-			 'exit' => 'threads_only',
-			 'stringify');
+             'stack_size' => 64*4096,
+             'exit' => 'threads_only',
+             'stringify');
 
 # }}}
 # Globals and settings {{{
@@ -163,18 +163,18 @@ my @exclude = ();
 my @use_hashes = ('md5','sha256');
 my ($md5_thread,$sha256_thread);
 my %os_supporting_threads = (
-	linux => 1,
-	freebsd => 1,
+    linux => 1,
+    freebsd => 1,
 );
 # Which hashes do we support?
 my %goodstuff = (
-	md4 => 0,
-	md5 => 1,
-	sha1 => 0,
-	sha224 => 1,
-	sha256 => 1,
-	sha384 => 1,
-	sha512 => 1,
+    md4 => 0,
+    md5 => 1,
+    sha1 => 0,
+    sha224 => 1,
+    sha256 => 1,
+    sha384 => 1,
+    sha512 => 1,
 );
 
 # Don't buffer stdout # why not?
@@ -185,24 +185,24 @@ $|++;
 # sub calc_numeric() - Calculate numeric with [kMGT] {{{
 
 sub calc_numeric {
-	my $num = shift;
-	return undef unless(defined($num));
+    my $num = shift;
+    return undef unless(defined($num));
 
-	if ($num =~ m/(\d+)([kmgt])?/i) {
-		my $n = $1;
-		my $e = $2;
-		if (lc($e) eq "k") {
-			return $n * 1024;
-		} elsif (lc($e) eq "m") {
-			return $n * 1024**2;
-		} elsif (lc($e) eq "g") {
-			return $n * 1024**3;
-		} elsif (lc($e) eq "t") {
-			return $n * 1024**4;
-		} else {
-			return $n;
-		}
-	}
+    if ($num =~ m/(\d+)([kmgt])?/i) {
+        my $n = $1;
+        my $e = $2;
+        if (lc($e) eq "k") {
+            return $n * 1024;
+        } elsif (lc($e) eq "m") {
+            return $n * 1024**2;
+        } elsif (lc($e) eq "g") {
+            return $n * 1024**3;
+        } elsif (lc($e) eq "t") {
+            return $n * 1024**4;
+        } else {
+            return $n;
+        }
+    }
 }
 
 # }}}
@@ -213,271 +213,271 @@ sub calc_numeric {
 #
 # Recursively scan through a directory and remove files not found there
 sub cleanup {
-	my $dh;
-	my $path = shift;
-	my $count=0;
-	my $sql = "SELECT filename FROM hashes";
-	$sth = $dbh->prepare($sql);
-	$sth->execute or die "Can't execute query: $sql\n";
-	while ((my $fname) = $sth->fetchrow) {
-		my $sqlfname = $fname;
-		$sqlfname =~ s/\'/\'\'/gsm;
-		$count++;
-		unless ( -e $fname) {
-			print "REMOVE $fname\n" if ($verbose); 
-			my $sql2 = "DELETE FROM hashes WHERE filename = '$sqlfname'";
-			my $sth2 = $dbh->prepare($sql2) or warn "Can't prepare query: $sql2\n";
-			$sth2->execute or warn "Can't execute query: $sql2\n";
-		}
-	}
+    my $dh;
+    my $path = shift;
+    my $count=0;
+    my $sql = "SELECT filename FROM hashes";
+    $sth = $dbh->prepare($sql);
+    $sth->execute or die "Can't execute query: $sql\n";
+    while ((my $fname) = $sth->fetchrow) {
+        my $sqlfname = $fname;
+        $sqlfname =~ s/\'/\'\'/gsm;
+        $count++;
+        unless ( -e $fname) {
+            print "REMOVE $fname\n" if ($verbose); 
+            my $sql2 = "DELETE FROM hashes WHERE filename = '$sqlfname'";
+            my $sth2 = $dbh->prepare($sql2) or warn "Can't prepare query: $sql2\n";
+            $sth2->execute or warn "Can't execute query: $sql2\n";
+        }
+    }
 }
 
 # }}}
 # sub datefromctime() - Get date from ctime {{{
 
-	sub datefromctime {
-		my $ctime = shift || die "need filename";
-		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-		$year += 1900;
-		return sprintf("%04d-%02d-%02d %02d:%02d:%02d", $year, $mon, $mday, $hour, $min, $sec);
-	}
+    sub datefromctime {
+        my $ctime = shift || die "need filename";
+        my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+        $year += 1900;
+        return sprintf("%04d-%02d-%02d %02d:%02d:%02d", $year, $mon, $mday, $hour, $min, $sec);
+    }
 
 # }}}
 # sub db_init() - Initialize database {{{
 
-	sub db_init {
-		# Drop old table
-		$sql = "DROP TABLE IF EXISTS hashes";
-		$sth = $dbh->prepare($sql);
-		$sth->execute() or die 'wtf?';
+    sub db_init {
+        # Drop old table
+        $sql = "DROP TABLE IF EXISTS hashes";
+        $sth = $dbh->prepare($sql);
+        $sth->execute() or die 'wtf?';
 
-		# Create a new one
-		$sql = "CREATE TABLE hashes(
-				filename varchar(500) NOT NULL UNIQUE,
-				inode integer,
-				size integer,
-				mtime integer,
-				dev integer,
-				md5 varchar(32),
-				sha256 varchar(64))";
-		$sth = $dbh->prepare($sql);
-		unless ($sth->execute()) {
-			print_sql($sql);
-			die 'wtf?';
-		}
-	}
+        # Create a new one
+        $sql = "CREATE TABLE hashes(
+                filename varchar(500) NOT NULL UNIQUE,
+                inode integer,
+                size integer,
+                mtime integer,
+                dev integer,
+                md5 varchar(32),
+                sha256 varchar(64))";
+        $sth = $dbh->prepare($sql);
+        unless ($sth->execute()) {
+            print_sql($sql);
+            die 'wtf?';
+        }
+    }
 
 # }}}
 # sub db_extend() - Extend database if neeed {{{
 
-	sub db_extend {
-		$sql = "DESCRIBE hashes LIMIT 1";
-		$sth = $dbh->prepare($sql);
-		$sth->execute() or die 'db_extend(): Can\'t query database';
-		my @row = $sth->fetchrow_array;
-	}
+    sub db_extend {
+        $sql = "DESCRIBE hashes LIMIT 1";
+        $sth = $dbh->prepare($sql);
+        $sth->execute() or die 'db_extend(): Can\'t query database';
+        my @row = $sth->fetchrow_array;
+    }
 
 # }}}
 # sub handle_duplicates() - Handle duplicated files {{{
 
 sub handle_duplicates {
-	my @hashes;
-	my $count=0;
-	my $mode = shift;
-	my $path = shift;
+    my @hashes;
+    my $count=0;
+    my $mode = shift;
+    my $path = shift;
 
-	#print "DEBUG: handle_duplicates($mode,\"$path\")\n" if ($debug);
-	#$path = File::Spec->rel2abs($path) ;
+    #print "DEBUG: handle_duplicates($mode,\"$path\")\n" if ($debug);
+    #$path = File::Spec->rel2abs($path) ;
 
-	print "DEBUG: handle_duplicates($mode,\"$path\")\n" if ($debug);
+    print "DEBUG: handle_duplicates($mode,\"$path\")\n" if ($debug);
 
-	die "Smells like fish - fix the code!"
-		unless ($mode eq "show" or $mode eq "hardlink" or $mode eq "csv");
+    die "Smells like fish - fix the code!"
+        unless ($mode eq "show" or $mode eq "hardlink" or $mode eq "csv");
 
-	$sql = "SELECT filename,md5,sha256
-			FROM hashes
-			GROUP BY md5,sha256
-			HAVING COUNT(sha256) > 1
-			AND COUNT(md5) > 1";
-	$sql .= " AND size < $max_size" if (defined($max_size));
-	$sql .= " AND size > $min_size" if (defined($min_size));
-	$sql .= " AND filename like '$path%'" if (defined($path));
-	$sql .= " ORDER BY filename";
+    $sql = "SELECT filename,md5,sha256
+            FROM hashes
+            GROUP BY md5,sha256
+            HAVING COUNT(sha256) > 1
+            AND COUNT(md5) > 1";
+    $sql .= " AND size < $max_size" if (defined($max_size));
+    $sql .= " AND size > $min_size" if (defined($min_size));
+    $sql .= " AND filename like '$path%'" if (defined($path));
+    $sql .= " ORDER BY filename";
 
-	print text_cleanup("DEBUG: SQL[1] = $sql\n") if ($debug);
-	$sth = $dbh->prepare($sql);
-	$sth->execute or die "Can't execute query: $sql\n";
-	while (my ($filename,$md5,$sha256) = $sth->fetchrow) {
-		$hashes[$count]{'md5'} = $md5;
-		$hashes[$count]{'sha256'} = $sha256;
-		$count++;
-	}
-	$count=0; # for newshow
-	print "entrynum;filesize;filename\n" if ($mode eq "csv");
-	foreach my $h (@hashes) {
-		$sql = "SELECT filename,size,inode
-				FROM hashes
-				WHERE md5 = '" . $h->{'md5'} . "'
-				AND sha256 = '" . $h->{'sha256'} . "'
-				GROUP BY inode
-				ORDER BY filename";
-		print text_cleanup("DEBUG: SQL[2] = $sql\n") if ($debug);
-		$sth = $dbh->prepare($sql);
-		$sth->execute or die "Can't execute query: $sql\n";
+    print text_cleanup("DEBUG: SQL[1] = $sql\n") if ($debug);
+    $sth = $dbh->prepare($sql);
+    $sth->execute or die "Can't execute query: $sql\n";
+    while (my ($filename,$md5,$sha256) = $sth->fetchrow) {
+        $hashes[$count]{'md5'} = $md5;
+        $hashes[$count]{'sha256'} = $sha256;
+        $count++;
+    }
+    $count=0; # for newshow
+    print "entrynum;filesize;filename\n" if ($mode eq "csv");
+    foreach my $h (@hashes) {
+        $sql = "SELECT filename,size,inode
+                FROM hashes
+                WHERE md5 = '" . $h->{'md5'} . "'
+                AND sha256 = '" . $h->{'sha256'} . "'
+                GROUP BY inode
+                ORDER BY filename";
+        print text_cleanup("DEBUG: SQL[2] = $sql\n") if ($debug);
+        $sth = $dbh->prepare($sql);
+        $sth->execute or die "Can't execute query: $sql\n";
 
-		if ($mode eq "show") {
-			my $filewaste = 0;
-			my ($filename,$size,$inode) = $sth->fetchrow;
-			my $s = "$filename [" . human_readable($size) . "/%s] matches: \n" unless ($quiet);
-			while (my ($filename2,$size2) = $sth->fetchrow) {
-				$s .= " \\- " . $filename2 . "\n" unless ($quiet);
-				$filewaste += $size2;
-			}
-			$s = sprintf($s, human_readable($filewaste));
-			$waste += $filewaste;
-			print "$s\n" unless ($quiet);
-		} elsif ($mode eq "csv") {
-			my ($filename,$size,$inode) = $sth->fetchrow;
-			printf("%d;%d;%s\n",$count,$size,$filename);
-			while (my ($filename2,$size2) = $sth->fetchrow) {
-				$waste += $size2;
-				printf("%d;%d;%s\n",$count,$size2,$filename2);
-			}
-			$count++;
-		} elsif ($mode eq "hardlink") {
-			my ($filename,$size,$inode) = $sth->fetchrow;
-			while (my ($filename2) = $sth->fetchrow) {
-				if (-e $filename2) {
-					unless ($force) {
-						warn "Won't replace existing file $filename2 without --force\n";
-						next;
-					} else {
-						unless (unlink ($filename2)) {
-							warn "Can't unlink(\"$filename2\"): $!\n";
-							next;
-						}
-					}
-				}
-				link($filename,$filename2);
-				print "LINK  $filename2\n" if ($verbose);
-				my $sql2 = "UPDATE hashes
-							SET inode = $inode
-							WHERE filename = '$filename2'";
-				$dbh->do($sql) || warn "erm...";
-			}
-		} else {
-			die "FISHY!";
-		}
-	}
-	my $hwaste = human_readable($waste);
-	print "Total space wasted: " . $hwaste . "B ($waste bytes)\n" if ($mode eq "show" or ($mode eq "csv" and $verbose));
+        if ($mode eq "show") {
+            my $filewaste = 0;
+            my ($filename,$size,$inode) = $sth->fetchrow;
+            my $s = "$filename [" . human_readable($size) . "/%s] matches: \n" unless ($quiet);
+            while (my ($filename2,$size2) = $sth->fetchrow) {
+                $s .= " \\- " . $filename2 . "\n" unless ($quiet);
+                $filewaste += $size2;
+            }
+            $s = sprintf($s, human_readable($filewaste));
+            $waste += $filewaste;
+            print "$s\n" unless ($quiet);
+        } elsif ($mode eq "csv") {
+            my ($filename,$size,$inode) = $sth->fetchrow;
+            printf("%d;%d;%s\n",$count,$size,$filename);
+            while (my ($filename2,$size2) = $sth->fetchrow) {
+                $waste += $size2;
+                printf("%d;%d;%s\n",$count,$size2,$filename2);
+            }
+            $count++;
+        } elsif ($mode eq "hardlink") {
+            my ($filename,$size,$inode) = $sth->fetchrow;
+            while (my ($filename2) = $sth->fetchrow) {
+                if (-e $filename2) {
+                    unless ($force) {
+                        warn "Won't replace existing file $filename2 without --force\n";
+                        next;
+                    } else {
+                        unless (unlink ($filename2)) {
+                            warn "Can't unlink(\"$filename2\"): $!\n";
+                            next;
+                        }
+                    }
+                }
+                link($filename,$filename2);
+                print "LINK  $filename2\n" if ($verbose);
+                my $sql2 = "UPDATE hashes
+                            SET inode = $inode
+                            WHERE filename = '$filename2'";
+                $dbh->do($sql) || warn "erm...";
+            }
+        } else {
+            die "FISHY!";
+        }
+    }
+    my $hwaste = human_readable($waste);
+    print "Total space wasted: " . $hwaste . "B ($waste bytes)\n" if ($mode eq "show" or ($mode eq "csv" and $verbose));
 }
 
 # }}}
 # sub handle_signal() {{{
-	sub handle_signal {
-		my $signame = shift;
-		print "Caught signal $signame\n";
-		print "Total waste found so far: " . human_readable($waste) . "\n";
-		exit(1);
-	}
+    sub handle_signal {
+        my $signame = shift;
+        print "Caught signal $signame\n";
+        print "Total waste found so far: " . human_readable($waste) . "\n";
+        exit(1);
+    }
 
 # }}}
 # sub hash_file() - Create hash of a file {{{
 
-	sub hash_file {
-		my $file = shift || die "need filename";
-		my $hash = shift || die "need pot!";
-		my $digest;
+    sub hash_file {
+        my $file = shift || die "need filename";
+        my $hash = shift || die "need pot!";
+        my $digest;
 
-		die "Unsupported hash: $hash\n" unless ($goodstuff{$hash});
+        die "Unsupported hash: $hash\n" unless ($goodstuff{$hash});
 
-		unless (open(F, $file)) {
-			print STDERR "Can't open '$file' for reading: $!\n";
-			return undef;
-		}
-		binmode(F);
+        unless (open(F, $file)) {
+            print STDERR "Can't open '$file' for reading: $!\n";
+            return undef;
+        }
+        binmode(F);
 
-		if ($hash eq "md5") {
-			$digest = Digest::MD5->new;
-		} elsif ($hash eq "sha224") {
-			$digest = Digest::SHA->new(256);
-		} elsif ($hash eq "sha256") {
-			$digest = Digest::SHA->new(256);
-		} elsif ($hash eq "sha384") {
-			$digest = Digest::SHA->new(384);
-		} elsif ($hash eq "sha512") {
-			$digest = Digest::SHA->new(512);
-		} else {
-			die "Need more hash!\n";
-		}
-		$digest->addfile(*F);
-		close(F);
+        if ($hash eq "md5") {
+            $digest = Digest::MD5->new;
+        } elsif ($hash eq "sha224") {
+            $digest = Digest::SHA->new(256);
+        } elsif ($hash eq "sha256") {
+            $digest = Digest::SHA->new(256);
+        } elsif ($hash eq "sha384") {
+            $digest = Digest::SHA->new(384);
+        } elsif ($hash eq "sha512") {
+            $digest = Digest::SHA->new(512);
+        } else {
+            die "Need more hash!\n";
+        }
+        $digest->addfile(*F);
+        close(F);
 
-		return $digest->b64digest;
-	}
+        return $digest->b64digest;
+    }
 
 # }}}
 # sub human_readable() {{{
 
-	sub human_readable {
-		my $num = shift;
-		return $num unless(is_numeric($num));
-		return sprintf("%dk", round($num/1024**1)) if ($num < 1024**2);
-		return sprintf("%dM", round($num/1024**2)) if ($num < 1024**3);
-		return sprintf("%dG", round($num/1024**3)) if ($num < 1024**4);
-		return sprintf("%dT", round($num/1024**4)) if ($num < 1024**5);
-		return sprintf("%dP", round($num/1024**5)) if ($num < 1024**6);
-		return sprintf("%dE", round($num/1024**6)) if ($num < 1024**7);
-		return sprintf("%dZ", round($num/1024**7)) if ($num < 1024**8);
-		return sprintf("%dE", round($num/1024**8)) if ($num < 1024**9);
-		return $num;
-	}
+    sub human_readable {
+        my $num = shift;
+        return $num unless(is_numeric($num));
+        return sprintf("%dk", round($num/1024**1)) if ($num < 1024**2);
+        return sprintf("%dM", round($num/1024**2)) if ($num < 1024**3);
+        return sprintf("%dG", round($num/1024**3)) if ($num < 1024**4);
+        return sprintf("%dT", round($num/1024**4)) if ($num < 1024**5);
+        return sprintf("%dP", round($num/1024**5)) if ($num < 1024**6);
+        return sprintf("%dE", round($num/1024**6)) if ($num < 1024**7);
+        return sprintf("%dZ", round($num/1024**7)) if ($num < 1024**8);
+        return sprintf("%dE", round($num/1024**8)) if ($num < 1024**9);
+        return $num;
+    }
 
 # }}}
 # sub is_numeric() {{{
-	sub is_numeric {
-		my $s = shift;
-		return ($s =~ /^\d+$/);
-	}
+    sub is_numeric {
+        my $s = shift;
+        return ($s =~ /^\d+$/);
+    }
 
 # }}}
 # sub print_sql() {{{
 
-	sub print_sql {
-		my $sql = shift;
-		$sql =~ s/\s+/ /gmi;
-		print "SQL = $sql\n";
-	}
+    sub print_sql {
+        my $sql = shift;
+        $sql =~ s/\s+/ /gmi;
+        print "SQL = $sql\n";
+    }
 
 # }}}
 # sub profile_point([name]) - add time to a given profiling point sub profile_point(name) {{{
 
 sub profile_point {
-	my $name = shift;
-	my $current_time = time;
-	my $diff = $current_time-$profile_time;
-	$profile_time = $current_time;
+    my $name = shift;
+    my $current_time = time;
+    my $diff = $current_time-$profile_time;
+    $profile_time = $current_time;
 
-	return if($diff == $current_time);
-	return unless defined($name);
+    return if($diff == $current_time);
+    return unless defined($name);
 
-	if(!defined($profile_points{$name})){
-		$profile_points{$name} = 0;
-	}
-	$profile_points{$name} = $profile_points{$name}+$diff;
+    if(!defined($profile_points{$name})){
+        $profile_points{$name} = 0;
+    }
+    $profile_points{$name} = $profile_points{$name}+$diff;
 }
 
 # }}}
 # sub profiling_print {{{
 
 sub profiling_print {
-	my $key;
-	my $value;
-	print "Profiling output:\n";
-	while(($key, $value) = each(%profile_points)){
-		print "$key used $value seconds\n";
-	}
+    my $key;
+    my $value;
+    print "Profiling output:\n";
+    while(($key, $value) = each(%profile_points)){
+        print "$key used $value seconds\n";
+    }
 }
 
 # }}}
@@ -489,164 +489,164 @@ sub profiling_print {
 # Recursively scan through a directory. If md5_file didn't succeed, skip and
 # ingore the file. md5_file() will print a warning.
 sub recursively_read_dir {
-	my $dh;
-	my $path = shift;
-	my $mode = shift;
-	my $rescan_inodes = shift;
-	die "Need mode!\n" unless (defined($mode));
+    my $dh;
+    my $path = shift;
+    my $mode = shift;
+    my $rescan_inodes = shift;
+    die "Need mode!\n" unless (defined($mode));
 
-	print "$path\n" if ($verbose > 1);
+    print "$path\n" if ($verbose > 1);
 
 # Sanity check and init_db if needed
-	if ($mode eq "init") {
-		unless ($initiated_database) {
-			$initiated_database=1;
-			&db_init;
-		}
-	} elsif ($mode eq "update") {
-	} else {
-		die "Invalid mode '$mode'\n"
-	}
+    if ($mode eq "init") {
+        unless ($initiated_database) {
+            $initiated_database=1;
+            &db_init;
+        }
+    } elsif ($mode eq "update") {
+    } else {
+        die "Invalid mode '$mode'\n"
+    }
 
 # Be nice! - need some ionice here...
-	setpriority(0, 0, 20);
+    setpriority(0, 0, 20);
 
 # Check for excludes
 # FIXME - seems this uses a global @exclude
-	my $matches = 0;
-	foreach my $ex (@exclude) {
-		$matches++ if ($path =~ $ex);
-	}
-	return if ($matches);
+    my $matches = 0;
+    foreach my $ex (@exclude) {
+        $matches++ if ($path =~ $ex);
+    }
+    return if ($matches);
 
 # Open and read directory
-	unless (opendir($dh, $path)) {
-		print STDERR "can't opendir $data_path: $!";
-		return;
-	}
-	my @dnames = sort readdir($dh);
-	closedir $dh;
+    unless (opendir($dh, $path)) {
+        print STDERR "can't opendir $data_path: $!";
+        return;
+    }
+    my @dnames = sort readdir($dh);
+    closedir $dh;
 
 # Traverse it
-	foreach my $dname (@dnames) {
-		next if ($dname eq '.' or $dname eq '..');
-		my $fname = "$path/$dname";
+    foreach my $dname (@dnames) {
+        next if ($dname eq '.' or $dname eq '..');
+        my $fname = "$path/$dname";
 
-		# Fix things like /////path or /////some//////path
-		$fname =~ s/\/\//\//g;
+        # Fix things like /////path or /////some//////path
+        $fname =~ s/\/\//\//g;
 
-		if (!$follow_symlinks and -l "$fname") {
-			print "SYMLINK $fname\n" if ($verbose);
-		} elsif ( -d "$fname") {
-			&recursively_read_dir("$fname", $mode);
-		} elsif (-f "$fname" && ! -z "$fname" ) {
-			my @fstat = stat($fname);
-			my $dev = $fstat[0];
-			my $inode = $fstat[1];
-			my $fsize = $fstat[7];
-			my $mtime = $fstat[9];
-			if (defined($min_size) and $fsize < $min_size) {
-				print "SKIP    $fname (< min size)\n" if ($verbose); 
-			} elsif (defined($max_size) and $fsize > $max_size) {
-				print "SKIP    $fname (> max size)\n" if ($verbose); 
-				next;
-			} else {
-				if ($mode eq "init") {
-					print "ADD     $fname" if ($verbose); 
-					my ($md5,$sha256);
-					# Don't create a new thread if the file is small. Perl threading is slow, so
-					# better not use it for tiny stuff...
-					profile_point("rest") if($verbose);
-					if ($no_hash) {
-						$md5 = $sha256 = "";
-					} else {
-						if (use_threads($fsize)) {
-							$md5_thread = threads->create(\&hash_file, $fname, "md5");
-							$sha256_thread = threads->create(\&hash_file, $fname, "sha256");
-							($md5) = $md5_thread->join();
-							($sha256) = $sha256_thread->join();
-						} else {
-							$md5 = hash_file($fname, "md5");
-							$sha256 = hash_file($fname, "sha256");
-						}
-						profile_point("hash") if($verbose);
-					}
-					my $sqlfname = "$fname";
-					$sqlfname =~ s/\'/\'\'/g;
-					$sql = "INSERT INTO hashes(filename, inode, size, mtime, dev, md5, sha256)
-							VALUES ('$sqlfname', '$inode', '$fsize', '$mtime', '$dev', '$md5', '$sha256')";
-					$sth = $dbh->prepare($sql);
-					$sth->execute or die "Can't execute query: $sql\n";
-					print "\n" if ($verbose); 
-					profile_point("sql") if($verbose);
-				} elsif ($mode eq "update") {
-					my $sqlfname = $fname;
-					$sqlfname =~ s/\'/\'\'/gsm;
-					$sql = "SELECT mtime FROM hashes WHERE filename = '$sqlfname' AND inode = '$inode' AND dev = '$dev'";
-					$sth = $dbh->prepare($sql) or die "Can't prepare query: $sql\n";
-					$sth->execute or die "Can't execute query: $sql\n";
-					my $stored_mtime = undef;
-					if (($stored_mtime) = $sth->fetchrow) {
-						if ($stored_mtime == $mtime) {
-							print "SKIP    $fname\n"  if ($verbose > 2); 
-							next;
-						}
-					}
-					print "UPDATE  $fname" if ($verbose); 
-					my ($md5,$sha256);
-					if (use_threads($fsize)) {
-						$md5_thread = threads->create(\&hash_file, $fname, "md5");
-						$sha256_thread = threads->create(\&hash_file, $fname, "sha256");
-						($md5) = $md5_thread->join();
-						($sha256) = $sha256_thread->join();
-					} else {
-						$md5 = hash_file($fname, "md5");
-						$sha256 = hash_file($fname, "sha256");
-					}
-					$sqlfname = "$fname";
-					$sqlfname =~ s/\'/\'\'/g;
+        if (!$follow_symlinks and -l "$fname") {
+            print "SYMLINK $fname\n" if ($verbose);
+        } elsif ( -d "$fname") {
+            &recursively_read_dir("$fname", $mode);
+        } elsif (-f "$fname" && ! -z "$fname" ) {
+            my @fstat = stat($fname);
+            my $dev = $fstat[0];
+            my $inode = $fstat[1];
+            my $fsize = $fstat[7];
+            my $mtime = $fstat[9];
+            if (defined($min_size) and $fsize < $min_size) {
+                print "SKIP    $fname (< min size)\n" if ($verbose); 
+            } elsif (defined($max_size) and $fsize > $max_size) {
+                print "SKIP    $fname (> max size)\n" if ($verbose); 
+                next;
+            } else {
+                if ($mode eq "init") {
+                    print "ADD     $fname" if ($verbose); 
+                    my ($md5,$sha256);
+                    # Don't create a new thread if the file is small. Perl threading is slow, so
+                    # better not use it for tiny stuff...
+                    profile_point("rest") if($verbose);
+                    if ($no_hash) {
+                        $md5 = $sha256 = "";
+                    } else {
+                        if (use_threads($fsize)) {
+                            $md5_thread = threads->create(\&hash_file, $fname, "md5");
+                            $sha256_thread = threads->create(\&hash_file, $fname, "sha256");
+                            ($md5) = $md5_thread->join();
+                            ($sha256) = $sha256_thread->join();
+                        } else {
+                            $md5 = hash_file($fname, "md5");
+                            $sha256 = hash_file($fname, "sha256");
+                        }
+                        profile_point("hash") if($verbose);
+                    }
+                    my $sqlfname = "$fname";
+                    $sqlfname =~ s/\'/\'\'/g;
+                    $sql = "INSERT INTO hashes(filename, inode, size, mtime, dev, md5, sha256)
+                            VALUES ('$sqlfname', '$inode', '$fsize', '$mtime', '$dev', '$md5', '$sha256')";
+                    $sth = $dbh->prepare($sql);
+                    $sth->execute or die "Can't execute query: $sql\n";
+                    print "\n" if ($verbose); 
+                    profile_point("sql") if($verbose);
+                } elsif ($mode eq "update") {
+                    my $sqlfname = $fname;
+                    $sqlfname =~ s/\'/\'\'/gsm;
+                    $sql = "SELECT mtime FROM hashes WHERE filename = '$sqlfname' AND inode = '$inode' AND dev = '$dev'";
+                    $sth = $dbh->prepare($sql) or die "Can't prepare query: $sql\n";
+                    $sth->execute or die "Can't execute query: $sql\n";
+                    my $stored_mtime = undef;
+                    if (($stored_mtime) = $sth->fetchrow) {
+                        if ($stored_mtime == $mtime) {
+                            print "SKIP    $fname\n"  if ($verbose > 2); 
+                            next;
+                        }
+                    }
+                    print "UPDATE  $fname" if ($verbose); 
+                    my ($md5,$sha256);
+                    if (use_threads($fsize)) {
+                        $md5_thread = threads->create(\&hash_file, $fname, "md5");
+                        $sha256_thread = threads->create(\&hash_file, $fname, "sha256");
+                        ($md5) = $md5_thread->join();
+                        ($sha256) = $sha256_thread->join();
+                    } else {
+                        $md5 = hash_file($fname, "md5");
+                        $sha256 = hash_file($fname, "sha256");
+                    }
+                    $sqlfname = "$fname";
+                    $sqlfname =~ s/\'/\'\'/g;
 # CREATE TABLE hashes(filename varchar(500) not null, inode integer, size integer, mtime integer, dev integer, md5 varchar(32), sha256 varchar(64))
-					$sql = "REPLACE INTO hashes(filename, inode, size, mtime, dev, md5, sha256)
-							VALUES ('$sqlfname', '$inode', '$fsize', '$mtime', '$dev', '$md5', '$sha256')";
-					$sth = $dbh->prepare($sql);
-					$sth->execute or die "Can't execute query: $sql\n";
-					print "\n" if ($verbose); 
-				} else {
-					die "wtf? I shouldn't have reached here - mode = $mode";
-				}
-			}
-		} else {
-			print "SKIP   $fname\n" if ($verbose);
-		}
-	}
+                    $sql = "REPLACE INTO hashes(filename, inode, size, mtime, dev, md5, sha256)
+                            VALUES ('$sqlfname', '$inode', '$fsize', '$mtime', '$dev', '$md5', '$sha256')";
+                    $sth = $dbh->prepare($sql);
+                    $sth->execute or die "Can't execute query: $sql\n";
+                    print "\n" if ($verbose); 
+                } else {
+                    die "wtf? I shouldn't have reached here - mode = $mode";
+                }
+            }
+        } else {
+            print "SKIP   $fname\n" if ($verbose);
+        }
+    }
 }
 
 # }}}
 # sub round() {{{
 
-	sub round {
-		my $num = shift;
-		return sprintf("%d", $num+0.5);
-	}
+    sub round {
+        my $num = shift;
+        return sprintf("%d", $num+0.5);
+    }
 # }}}
 # sub stripspaces() {{{
 
 sub stripspaces {
-	my $s = shift;
-	return undef unless (defined($s));
-	$s =~ s/\s+/ /gm;
-	return $s;
+    my $s = shift;
+    return undef unless (defined($s));
+    $s =~ s/\s+/ /gm;
+    return $s;
 }
 
 # }}}
 # sub syntax() - Show program syntax {{{
 
 sub syntax {
-	my $cause = shift;
-	$cause = "something strange" unless (defined($cause));
-	my $syntaxline = "";
-	$syntaxline = "SYNTAX: $cause" unless ($cause eq "HELP!");
-	print <<EOTEXT;
+    my $cause = shift;
+    $cause = "something strange" unless (defined($cause));
+    my $syntaxline = "";
+    $syntaxline = "SYNTAX: $cause" unless ($cause eq "HELP!");
+    print <<EOTEXT;
 $0 < -I | -S | -C | -S | -H > [ optional parameters ]
 $syntaxline
 Mode parameters:
@@ -657,7 +657,7 @@ Mode parameters:
     --show-duplicates -S      Show duplicate files and total space taken by
                               duplicates (waste)
     --hardlink-duplicates -H  Hardlink duplicates. Requires --force to
-	                          overwrite existing files.
+                              overwrite existing files.
 
     Only one mode parameter can be given!
 
@@ -678,34 +678,34 @@ Optional parameters:
     --debug                   Print debug information
     --version -V              Display version and exit
 EOTEXT
-	exit 1;
+    exit 1;
 }
 
 # }}}
 # sub use_threads() {{{
 
-	sub use_threads {
-		my $fsize = shift;
-		return 0 unless ($os_supporting_threads{$^O});
-		return ($fsize > $min_fsize_for_thread);
-	}
+    sub use_threads {
+        my $fsize = shift;
+        return 0 unless ($os_supporting_threads{$^O});
+        return ($fsize > $min_fsize_for_thread);
+    }
 
 # }}}
 # sub text_cleanup() {{{
 
-	sub text_cleanup {
-		my $s = shift;
-		$s =~ s/[\s\n\r]+/ /gsm;
-		return "$s\n";
-	}
+    sub text_cleanup {
+        my $s = shift;
+        $s =~ s/[\s\n\r]+/ /gsm;
+        return "$s\n";
+    }
 
 # }}}
 # sub version() {{{
 
-	sub version {
-		print "$0 version $VERSION\n";
-		exit 0;
-	}
+    sub version {
+        print "$0 version $VERSION\n";
+        exit 0;
+    }
 
 # }}}
 
@@ -714,33 +714,33 @@ EOTEXT
 Getopt::Long::Configure ("bundling");
 my $result = GetOptions (
 # modes
-	"init"					=> \$init,					"I"	=> \$init,
-	"update"				=> \$update,				"U"	=> \$update,
-	"cleanup"				=> \$cleanup,				"C"	=> \$cleanup,
-	"show-duplicates"		=> \$show_duplicates,		"S"	=> \$show_duplicates,
-	"hardlink-duplicates"	=> \$hardlink_duplicates,	"H"	=> \$hardlink_duplicates,
+    "init"                  => \$init,                  "I" => \$init,
+    "update"                => \$update,                "U" => \$update,
+    "cleanup"               => \$cleanup,               "C" => \$cleanup,
+    "show-duplicates"       => \$show_duplicates,       "S" => \$show_duplicates,
+    "hardlink-duplicates"   => \$hardlink_duplicates,   "H" => \$hardlink_duplicates,
 
 # opts
-	"verbose+"				=> \$verbose,				"v+" => \$verbose, 
-	"datapath=s"			=> \$data_path,				"p=s" => \$data_path,
-	"help"					=> \$help,					"h" => \$help,
-	"version"				=> \$version,				"V" => \$version,
-	"quiet"					=> \$quiet,					"Q" => \$quiet,
-	"debug"					=> \$debug,					"D" => \$debug,
-	"config-file=s"			=> \$config_file,			"f=s" => \$config_file,
-	"database=s"			=> \$sqlitedb,
-	"csv"					=> \$csv,
-	"follow-symlinks"		=> \$follow_symlinks,
-	"update-inodes"			=> \$update_inodes,
-	"no-recalc"				=> \$no_recalc,
-	"min-size=s"			=> \$min_size,
-	"max-size=s"			=> \$max_size,
-	"exclude=s"				=> \@exclude,
-	"verify"				=> \$verify,
-	"force"					=> \$force,
-	"no-cleanup"			=> \$no_cleanup,
-	"unstable"				=> \$unstable,
-	"no-hash"				=> \$no_hash,
+    "verbose+"              => \$verbose,               "v+" => \$verbose, 
+    "datapath=s"            => \$data_path,             "p=s" => \$data_path,
+    "help"                  => \$help,                  "h" => \$help,
+    "version"               => \$version,               "V" => \$version,
+    "quiet"                 => \$quiet,                 "Q" => \$quiet,
+    "debug"                 => \$debug,                 "D" => \$debug,
+    "config-file=s"         => \$config_file,           "f=s" => \$config_file,
+    "database=s"            => \$sqlitedb,
+    "csv"                   => \$csv,
+    "follow-symlinks"       => \$follow_symlinks,
+    "update-inodes"         => \$update_inodes,
+    "no-recalc"             => \$no_recalc,
+    "min-size=s"            => \$min_size,
+    "max-size=s"            => \$max_size,
+    "exclude=s"             => \@exclude,
+    "verify"                => \$verify,
+    "force"                 => \$force,
+    "no-cleanup"            => \$no_cleanup,
+    "unstable"              => \$unstable,
+    "no-hash"               => \$no_hash,
 );
 &version if ($version);
 &syntax("HELP!") if ($help);
@@ -757,14 +757,14 @@ $okcount++ if ($hardlink_duplicates);
 $okcount++ if ($cleanup);
 $okcount++ if ($csv);
 if (defined($config_file)) {
-	&syntax("Config file '$config_file' not readable: $!\n") unless (-r $config_file);
+    &syntax("Config file '$config_file' not readable: $!\n") unless (-r $config_file);
 } else {
-	$config_file = $default_config_file;
+    $config_file = $default_config_file;
 }
 if ($okcount == 0) {
-	&syntax("Missing required argument");
+    &syntax("Missing required argument");
 } elsif ($okcount > 1) {
-	&syntax("Conflicting arguments [$okcount]");
+    &syntax("Conflicting arguments [$okcount]");
 }
 
 # Ignore this for now
@@ -774,13 +774,13 @@ if ($okcount == 0) {
 # }}}
 # Parse config file {{{
 if (-r $config_file) {
-	unless (open CF,$config_file) {
-		print STDERR "Can't open config file: $!\n";
-		exit(1);
-	}
-	while (<CF>) {
-	}
-	close CF;
+    unless (open CF,$config_file) {
+        print STDERR "Can't open config file: $!\n";
+        exit(1);
+    }
+    while (<CF>) {
+    }
+    close CF;
 }
 # }}}
 # Main program {{{
@@ -791,10 +791,10 @@ $SIG{HUP} = sub { &handle_signal };
 
 # Don't overwrite existing database unless --force is given
 if ($init and -f $sqlitedb and !$force) {
-	print "Use --force to foribly overwrite and possibly corrupt an existing\n";
-	print "  database. Move the file ($sqlitedb) away or delete it manually to\n";
-	print "  avoid this message.\n";
-	exit(1);
+    print "Use --force to foribly overwrite and possibly corrupt an existing\n";
+    print "  database. Move the file ($sqlitedb) away or delete it manually to\n";
+    print "  avoid this message.\n";
+    exit(1);
 }
 
 # why do we do this?
@@ -808,27 +808,27 @@ $dbh->do("PRAGMA synchronous = OFF");
 $dbh->do("PRAGMA cache_size = 100000");
 
 if ($init) {
-	&recursively_read_dir($data_path, "init", 0);
+    &recursively_read_dir($data_path, "init", 0);
 } elsif ($update) {
-	&cleanup unless ($no_cleanup);
-	&recursively_read_dir($data_path, "update", $update_inodes);
+    &cleanup unless ($no_cleanup);
+    &recursively_read_dir($data_path, "update", $update_inodes);
 } elsif ($show_duplicates) {
-	&handle_duplicates("show", $data_path);
+    &handle_duplicates("show", $data_path);
 } elsif ($csv) {
-	&handle_duplicates("csv", $data_path);
+    &handle_duplicates("csv", $data_path);
 } elsif ($hardlink_duplicates) {
-	&handle_duplicates("hardlink");
+    &handle_duplicates("hardlink");
 } elsif ($cleanup) {
-	print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
-		if ($verbose);
-	&cleanup;
+    print "NOTICE: Explicit cleanup is no longer required, and called by update automatically\n"
+        if ($verbose);
+    &cleanup;
 } else {
-	&syntax("WTF????");
+    &syntax("WTF????");
 }
 
 # Not so sure about this...
 if ($verbose){
-	&profiling_print;
+    &profiling_print;
 }
 
 # clean up
